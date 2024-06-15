@@ -126,12 +126,13 @@ function DownloadButton() {
     document.body.removeChild(link);
   };
 
-  return <button onClick={handleDownload}>Download Image</button>;
+  return <button onClick={handleDownload}>Export Image</button>;
 }
 
 export default function App() {
   return (
     <div className="App">
+    <div className="canvas-container">
       <Canvas camera={{ position: [-8, 5, 8]}}>
        <ambientLight intensity={0.1} />
           <directionalLight color="red" position={[0, 0, 5]} />
@@ -140,6 +141,7 @@ export default function App() {
         <Stats />
         {/* DownloadButton is outside the Canvas */}
       </Canvas>
+      </div>
       <DownloadButton />
     </div>
   );
