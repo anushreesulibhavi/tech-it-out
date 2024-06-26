@@ -1,153 +1,222 @@
-// import { Canvas } from '@react-three/fiber'
-// import './App.css'
-// import { OrbitControls } from '@react-three/drei'
+import React, { useState, useEffect, useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Stats } from "@react-three/drei";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
+import "./App.css";
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD98xV7NlyYF9ApnNC5bhSBRfM9XM0KomA",
+  authDomain: "module10-a4aa9.firebaseapp.com",
+  projectId: "module10-a4aa9",
+  storageBucket: "module10-a4aa9.appspot.com",
+  messagingSenderId: "564621044983",
+  appId: "1:564621044983:web:d4dab97e3d6a39bd7af7f2",
+  measurementId: "G-RDH0ENDLYV"
+};
 
-// export default function App() {
-//   return (
-//     <>
-//       <Canvas camera={{ position: [-8, 5, 8] }}>
-//         <ambientLight intensity={0.1} />
-//         <directionalLight color="red" position={[0, 0, 5]} />
-//         <mesh scale={3}>
-//           <boxGeometry />
-//           <meshStandardMaterial />
-//         </mesh>
-//         <OrbitControls />
-//       </Canvas>
-//     </>
-//   )
-// }
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 
-//---------------------------------------
+const App = () => {
+  const [modelBlob, setModelBlob] = useState(null);
+  const [compressedModelBlob, setCompressedModelBlob] = useState(null);
+  const [previewModelUrl, setPreviewModelUrl] = useState(null);
+  const [file, setFile] = useState(null);
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [isCompressed, setIsCompressed] = useState(false);
+  const sceneRef = useRef();
 
-
-// import React from 'react';
-// import { Canvas, useLoader } from '@react-three/fiber';
-// import { OrbitControls, Stats } from '@react-three/drei';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-// import './App.css';
-
-// function Model() {
-//   // Load the GLB model
-//   const gltf = useLoader(GLTFLoader, '/heavy__cs2_agent_model_t.glb'); // Ensure the path is correct
-
-//   return <primitive object={gltf.scene} />;
-// }
-
-// export default function App() {
-//   return (
-//     <Canvas camera={{ position: [-8, 5, 8] }}>
-//       <ambientLight intensity={0.1} />
-//       <directionalLight color="red" position={[0, 0, 5]} />
-//       <Model />
-//       <OrbitControls />
-//       <Stats /> {/* Add the stats panel */}
-//     </Canvas>
-//   );
-// 
-
-
-//------------------------------
-
-// import React, { Suspense } from 'react';
-// import { Canvas, useLoader } from '@react-three/fiber';
-// import { OrbitControls, Stats } from '@react-three/drei';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-// import './App.css';
-
-// function DracoModel() {
-//   // Create a new instance of DRACOLoader
-//   const dracoLoader = new DRACOLoader();
-  
-//   // Set the path to the Draco decoder files using a CDN
-//   dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three/examples/js/libs/draco/');
-
-//   // Create a new instance of GLTFLoader and set DRACOLoader
-//   const gltfLoader = new GLTFLoader();
-//   gltfLoader.setDRACOLoader(dracoLoader);
-
-//   // Load the GLB model using useLoader hook
-//   const gltf = useLoader(GLTFLoader, './compressed_model.glb'); // Replace with actual path
-
-//   return <primitive object={gltf.scene} />;
-// }
-
-// export default function App() {
-//   return (
-//     <Canvas camera={{ position: [-8, 5, 8]}}>
-//       <ambientLight intensity={0.1} />
-//       <directionalLight color="red" position={[0, 0, 5]} />
-//       <Suspense fallback={null}>
-//         <DracoModel />
-//       </Suspense>
-//       <OrbitControls />
-//       <Stats />
-//     </Canvas>
-//   );
-// }
-
-
-//------------------------
-
-import React, { useRef } from 'react';
-import { Canvas, useThree, useLoader } from '@react-three/fiber';
-import { OrbitControls, Stats } from '@react-three/drei';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import './App.css';
-
-function DracoModel() {
-  const dracoLoader = useRef(new DRACOLoader());
-
-  // Set the path to the Draco decoder files using a CDN
-  dracoLoader.current.setDecoderPath('https://cdn.jsdelivr.net/npm/three/examples/js/libs/draco/');
-
-  const gltfLoader = useRef(new GLTFLoader());
-  gltfLoader.current.setDRACOLoader(dracoLoader.current);
-
-  // Load the GLB model
-  const gltf = useLoader(GLTFLoader, './compressed_model.glb'); // Replace with actual path
-
-  return <primitive object={gltf.scene} />;
-}
-
-function DownloadButton() {
-  const handleDownload = () => {
-    const canvas = document.querySelector('canvas'); // Assuming there's only one canvas
-    const imageUrl = canvas.toDataURL();
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    link.href = imageUrl;
-    link.download = 'canvas_image.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      const fileURL = URL.createObjectURL(selectedFile);
+      setPreviewModelUrl(fileURL);
+      setFile({
+        ...selectedFile,
+        name: "newcompressed", // Setting the file name explicitly
+      });
+      setIsCompressed(false);  // Reset compression state on new file upload
+    }
   };
 
-  return <button onClick={handleDownload}>Export Image</button>;
-}
+  const handleCompressModel = async () => {
+    if (!isModelLoaded) {
+      alert("Please wait for the model to finish loading.");
+      return;
+    }
 
-export default function App() {
+    if (sceneRef.current) {
+      const exporter = new GLTFExporter();
+      const options = {
+        binary: true,
+        truncateDrawRange: true,
+        forcePowerOfTwoTextures: true,
+        includeCustomExtensions: true,
+        dracoOptions: {
+          compressionLevel: 7,
+          encoderMethod: "edgebreaker",
+          quantizationBits: 14,
+        },
+      };
+
+      try {
+        const result = await new Promise((resolve, reject) => {
+          exporter.parse(
+            sceneRef.current,
+            (gltf) => resolve(gltf),
+            (error) => reject(error),
+            options
+          );
+        });
+
+        const blob = new Blob([result], { type: "application/octet-stream" });
+        setCompressedModelBlob(blob);
+        setIsCompressed(true);
+        await uploadToFirebase(blob);
+        alert("Model compressed and uploaded successfully!");
+      } catch (error) {
+        console.error("Error compressing GLB:", error);
+        alert("Error compressing GLB: " + error.message);
+      }
+    }
+  };
+
+  const uploadToFirebase = async (blob) => {
+    try {
+      const storageRef = ref(storage, `compressed-models/${file.name}`);
+      await uploadBytes(storageRef, blob);
+      console.log('Uploaded a blob or file!');
+      alert('Uploaded a blob or file!');
+    } catch (error) {
+      console.error("Error uploading to Firebase:", error);
+      alert("Error uploading to Firebase: " + error.message);
+    }
+  };
+
+  const handleExportGLB = async () => {
+    if (!isModelLoaded) {
+      alert("Please wait for the model to finish loading.");
+      return;
+    }
+
+    const exporter = new GLTFExporter();
+    const options = isCompressed ? {
+      binary: true,
+      truncateDrawRange: false,
+      forcePowerOfTwoTextures: false,
+      includeCustomExtensions: false,
+      dracoOptions: {
+        encoderMethod: "edgebreaker",
+        quantizationBits: 14,
+      },
+    } : {
+      binary: true,
+      truncateDrawRange: false,
+      forcePowerOfTwoTextures: false,
+      includeCustomExtensions: false,
+    };
+
+    try {
+      const result = await new Promise((resolve, reject) => {
+        exporter.parse(
+          sceneRef.current,
+          (gltf) => resolve(gltf),
+          (error) => reject(error),
+          options
+        );
+      });
+
+      const blob = new Blob([result], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `model_${isCompressed ? 'compressed_' : ''}${Date.now()}.glb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting GLB:", error);
+      alert("Error exporting GLB: " + error.message);
+    }
+  };
+
+  const Model = ({ url, sceneRef, onModelLoad }) => {
+    const [model, setModel] = useState(null);
+
+    useEffect(() => {
+      if (url) {
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath("https://cdn.jsdelivr.net/npm/three/examples/js/libs/draco/");
+
+        loader.setDRACOLoader(dracoLoader);
+
+        loader.load(
+          url,
+          (gltf) => {
+            setModel(gltf.scene);
+            sceneRef.current = gltf.scene;
+            if (onModelLoad) {
+              onModelLoad();
+            }
+          },
+          undefined,
+          (error) => {
+            console.error("An error happened while loading the model:", error);
+            alert("An error happened while loading the model: " + error.message);
+          }
+        );
+      }
+    }, [url, onModelLoad, sceneRef]);
+
+    return model ? <primitive object={model} /> : null;
+  };
+
   return (
     <div className="App">
-    <div className="canvas-container">
-      <Canvas camera={{ position: [-8, 5, 8]}}>
-       <ambientLight intensity={0.1} />
-          <directionalLight color="red" position={[0, 0, 5]} />
-        <DracoModel />
-        <OrbitControls />
-        <Stats />
-        {/* DownloadButton is outside the Canvas */}
-      </Canvas>
+      <div className="canvas-container">
+        <Canvas>
+          <ambientLight intensity={0.5} />
+          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+          <pointLight position={[-10, -10, -10]} />
+          {previewModelUrl && (
+            <Model url={previewModelUrl} sceneRef={sceneRef} onModelLoad={() => setIsModelLoaded(true)} />
+          )}
+          <OrbitControls
+            enableRotate={true}
+            enablePan={true}
+            enableZoom={true}
+            enableTranslate={true}
+            autoRotate={false}
+            minPolarAngle={0}
+            maxPolarAngle={Math.PI}
+          />
+          <Stats />
+        </Canvas>
       </div>
-      <DownloadButton />
+      <div className="ui">
+        <div className="file-input-wrapper">
+          <label htmlFor="file-input" className="file-input-label">Choose File</label>
+          <input
+            type="file"
+            accept=".glb,.gltf"
+            onChange={handleFileChange}
+            className="file-input"
+            id="file-input"
+          />
+        </div>
+        <button className="upload-btn" onClick={handleCompressModel}>Compress Model</button>
+        <button className="upload-btn" onClick={handleExportGLB}>Export GLB</button>
+      </div>
     </div>
   );
-}
+};
 
-//----------------------------------
-
-
-
+export default App;
