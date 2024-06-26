@@ -1,44 +1,10 @@
-/* * {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  overflow: hidden;
-}
-
-#root {
-  overflow: hidden;
-}
-
-body {
-  position: fixed;
-  overflow: hidden;
-  overscroll-behavior-y: none;
-  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
-  color: black;
-  -webkit-font-smoothing: antialiased;
-  background: #f0f0f0;
-} */
-
 html, body {
   height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 
 #root {
-  overflow: hidden;
   height: 100%;
   width: 100%;
 }
@@ -53,23 +19,63 @@ html, body {
 .canvas-container {
   flex-grow: 1;
   display: flex;
-  height: 100%;
+  justify-content: center; 
+  align-items: center; 
+  background-color: #142d38; 
 }
 
-button {
-  position: absolute; /* Ensures it's placed over the canvas */
-  bottom: 20px; /* Adjust as needed */
-  left: 600px; /* Adjust as needed */
-  padding: 5px 10px; /* Adjust padding for size */
-  font-size: 14px; /* Adjust font size */
-  background-color: #99d341; /* Button background color */
-  color: rgb(205, 214, 214); /* Button text color */
-  border: none; /* Remove default border */
-  border-radius: 3px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
+.ui {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px; 
 }
 
-button:hover {
-  background-color: #0056b3; /* Darker background on hover */
+.file-input-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
+.file-input {
+  display: none; 
+}
+
+.file-input-label {
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #FFD700; 
+  color: black; 
+  border: none; 
+  border-radius: 3px; 
+  cursor: pointer; 
+  box-shadow: 0 4px #999; 
+}
+
+.file-input-label:active {
+  box-shadow: 0 2px #666;
+  transform: translateY(2px);
+}
+
+.upload-btn {
+  padding: 8px 16px; 
+  font-size: 14px; 
+  background-color: #FFD700; 
+  color: black; 
+  border: none; 
+  border-radius: 3px; 
+  cursor: pointer; 
+  box-shadow: 0 4px #999; 
+}
+
+.upload-btn:active {
+  box-shadow: 0 2px #666;
+  transform: translateY(2px);
+} 
