@@ -4,9 +4,10 @@ import { OrbitControls, Stats } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
-import "./App.css";
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import "./App.css";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,9 +19,11 @@ const firebaseConfig = {
   appId: "1:564621044983:web:d4dab97e3d6a39bd7af7f2",
   measurementId: "G-RDH0ENDLYV"
 };
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
+const firestore = getFirestore(app);
 
 const App = () => {
   const [modelBlob, setModelBlob] = useState(null);
@@ -30,6 +33,18 @@ const App = () => {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isCompressed, setIsCompressed] = useState(false);
   const sceneRef = useRef();
+
+  useEffect(() => {
+    // Fetch the model URL from Firestore on app initialization
+    const fetchModelUrl = async () => {
+      const docRef = doc(firestore, "models", "currentModel");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setPreviewModelUrl(docSnap.data().url);
+      }
+    };
+    fetchModelUrl();
+  }, [firestore]);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -88,10 +103,12 @@ const App = () => {
 
   const uploadToFirebase = async (blob) => {
     try {
-      const storageRef = ref(storage, `compressed-models/${file.name}`);
-      await uploadBytes(storageRef, blob);
-      console.log('Uploaded a blob or file!');
-      alert('Uploaded a blob or file!');
+      const storageRef = ref(storage, compressed-models/$(file.name));
+      const snapshot = await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      await setDoc(doc(firestore, "models", "currentModel"), { url: downloadURL });
+      console.log('Uploaded and URL saved to Firestore!');
+      alert('Uploaded and URL saved to Firestore!');
     } catch (error) {
       console.error("Error uploading to Firebase:", error);
       alert("Error uploading to Firebase: " + error.message);
@@ -175,7 +192,7 @@ const App = () => {
       }
     }, [url, onModelLoad, sceneRef]);
 
-    return model ? <primitive object={model} /> : null;
+    return model ? <primitive object={model} position={[0, -1, 0]} /> : null; // Adjust position here
   };
 
   return (
