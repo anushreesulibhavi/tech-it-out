@@ -170,7 +170,7 @@ const App = () => {
       if (url) {
         const loader = new GLTFLoader();
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath("https://cdn.jsdelivr.net/npm/three/examples/js/libs/draco/");
+        dracoLoader.setDecoderPath("/draco/");
 
         loader.setDRACOLoader(dracoLoader);
 
