@@ -103,7 +103,7 @@ const App = () => {
 
   const uploadToFirebase = async (blob) => {
     try {
-      const storageRef = ref(storage, compressed-models/$(file.name));
+      const storageRef = ref(storage, `compressed-models/${file.name}`);
       const snapshot = await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(snapshot.ref);
       await setDoc(doc(firestore, "models", "currentModel"), { url: downloadURL });
