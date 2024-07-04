@@ -21,17 +21,18 @@ html, body {
   display: flex;
   justify-content: center; 
   align-items: center; 
-  background-color: #142d38; 
+  background-color: #021b25; 
 }
 
 .ui {
   position: absolute;
   top: 10px;
-  left: 15%;
+  left: 20%;
   transform: translateX(-50%);
   z-index: 1;
   padding: 10px;
   border-radius: 8px;
+  width:auto;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -45,36 +46,51 @@ html, body {
   display: none; 
 }
 
-.file-input-label {
-  padding: 5px 10px;
+.file-input-label, .upload-btn, .background-btn {
+  padding: 10px 20px;
   font-size: 14px;
-  background-color: #FFD700; 
-  color: black; 
-  border: none; 
-  border-radius: 3px; 
-  cursor: pointer; 
-  box-shadow: 0 4px #999; 
+  background-color: #FFD700; /* Gold color */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 5px #999; /* Shadow to create a 3D effect */
+  display: inline-block;
+  margin-bottom: 10px; /* Add space between elements */
+  transition: all 0.2s ease; /* Smooth transition for hover effects */
 }
 
-.file-input-label:active {
-  box-shadow: 0 2px #999;
-  transform: translateY(5px);
+.file-input-label:active, .upload-btn:active, .background-btn:active {
+  box-shadow: 0 2px #666; /* Smaller shadow on click */
+  transform: translateY(4px); /* Move button down on click */
 }
 
-.upload-btn {
-  padding: 8px 16px; 
-  font-size: 14px; 
-  background-color: #FFD700; 
-  color: black; 
-  border: none; 
-  border-radius: 3px; 
-  cursor: pointer; 
-  box-shadow: 0 4px #999; 
-  display: block;
-  margin-bottom: 10px; /* Add space between buttons */
+.file-input-label:hover, .upload-btn:hover, .background-btn:hover {
+  background-color: #FFC700; /* Slightly lighter gold on hover */
 }
 
-.upload-btn:active {
-  box-shadow: 0 2px #999;
-  transform: translateY(2px);
+/* Add this to your App.css file */
+
+.light-settings {
+  display: flex;
+  flex-direction: column; /* Make each child element take a new line */
+  gap: 10px; /* Optional: add some space between each line */
+}
+
+.light-settings label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.light-settings input[type="range"] {
+  flex: 1;
+  margin-left: 10px; /* Optional: add some space between the label and the slider */
+}
+
+.light-settings input[type="color"],
+.light-settings select,
+.light-settings input[type="checkbox"] {
+  margin-left: 10px; /* Optional: add some space between the label and the input */
 }

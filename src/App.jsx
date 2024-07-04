@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stats } from "@react-three/drei";
+import { Canvas, useLoader } from "@react-three/fiber";
+import { OrbitControls, Stats, Stars, Cloud, Environment, useTexture } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
@@ -11,13 +11,13 @@ import "./App.css";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD98xV7NlyYF9ApnNC5bhSBRfM9XM0KomA",
-  authDomain: "module10-a4aa9.firebaseapp.com",
-  projectId: "module10-a4aa9",
-  storageBucket: "module10-a4aa9.appspot.com",
-  messagingSenderId: "564621044983",
-  appId: "1:564621044983:web:d4dab97e3d6a39bd7af7f2",
-  measurementId: "G-RDH0ENDLYV"
+    apiKey: "AIzaSyD98xV7NlyYF9ApnNC5bhSBRfM9XM0KomA",
+    authDomain: "module10-a4aa9.firebaseapp.com",
+    projectId: "module10-a4aa9",
+    storageBucket: "module10-a4aa9.appspot.com",
+    messagingSenderId: "564621044983",
+    appId: "1:564621044983:web:d4dab97e3d6a39bd7af7f2",
+    measurementId: "G-RDH0ENDLYV"
 };
 
 // Initialize Firebase
@@ -32,11 +32,18 @@ const App = () => {
   const [file, setFile] = useState(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isCompressed, setIsCompressed] = useState(false);
+  const [backgroundIndex, setBackgroundIndex] = useState(0); // New state for background index
+  const [lightType, setLightType] = useState("point");
+  const [lightColor, setLightColor] = useState("#ffffff");
+  const [lightIntensity, setLightIntensity] = useState(1);
+  const [shadowsEnabled, setShadowsEnabled] = useState(true);
+  const [shadowIntensity, setShadowIntensity] = useState(1);
+  const [exposureEnabled, setExposureEnabled] = useState(true);
+  const [exposureIntensity, setExposureIntensity] = useState(1);
   const sceneRef = useRef();
 
   useEffect(() => {
-    // Fetch the model URL from Firestore on app initialization
-    const fetchModelUrl = async () => {
+      const fetchModelUrl = async () => {
       const docRef = doc(firestore, "models", "currentModel");
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -192,19 +199,79 @@ const App = () => {
       }
     }, [url, onModelLoad, sceneRef]);
 
+    useEffect(() => {
+      if (model) {
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = shadowsEnabled;
+            child.receiveShadow = shadowsEnabled;
+          }
+        });
+      }
+    }, [model, shadowsEnabled]);
+
     return model ? <primitive object={model} position={[0, -1, 0]} /> : null; // Adjust position here
   };
+
+  const backgrounds = [
+    <Stars />,
+    <Cloud />,
+    <Environment files="path/to/your/background.jpg" />, // Add your background image here
+    // Add more backgrounds here as needed
+  ];
+
+  const toggleBackground = () => {
+    setBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
+  };
+
+  const saveSettings = async () => {
+    try {
+      await setDoc(doc(firestore, "settings", "appSettings"), {
+        lightType,
+        lightColor,
+        lightIntensity,
+        shadowsEnabled,
+        shadowIntensity,
+        exposureEnabled,
+        exposureIntensity,
+      });
+      alert("Settings saved successfully!");
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      alert("Error saving settings: " + error.message);
+    }
+  };
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const docRef = doc(firestore, "settings", "appSettings");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setLightType(data.lightType);
+        setLightColor(data.lightColor);
+        setLightIntensity(data.lightIntensity);
+        setShadowsEnabled(data.shadowsEnabled);
+        setShadowIntensity(data.shadowIntensity);
+        setExposureEnabled(data.exposureEnabled);
+        setExposureIntensity(data.exposureIntensity);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   return (
     <div className="App">
       <div className="canvas-container">
-        <Canvas>
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-          <pointLight position={[-10, -10, -10]} />
+        <Canvas shadows={shadowsEnabled}>
+          <ambientLight color={lightColor} intensity={lightIntensity} />
+          {lightType === "point" && <pointLight color={lightColor} intensity={lightIntensity}/>}
+          {lightType === "spot" && <spotLight color={lightColor} intensity={lightIntensity} angle={0.3} penumbra={1} position={[5,5,5]} castShadow={shadowsEnabled} />}
+          {lightType === "directional" && <directionalLight color={lightColor} intensity={lightIntensity} position={[5, 5, 5]} castShadow={shadowsEnabled} />}
           {previewModelUrl && (
             <Model url={previewModelUrl} sceneRef={sceneRef} onModelLoad={() => setIsModelLoaded(true)} />
           )}
+
           <OrbitControls
             enableRotate={true}
             enablePan={true}
@@ -215,6 +282,7 @@ const App = () => {
             maxPolarAngle={Math.PI}
           />
           <Stats />
+          {backgrounds[backgroundIndex]} {/* Display the current background */}
         </Canvas>
       </div>
       <div className="ui">
@@ -230,9 +298,78 @@ const App = () => {
         </div>
         <button className="upload-btn" onClick={handleCompressModel}>Compress Model</button>
         <button className="upload-btn" onClick={handleExportGLB}>Export GLB</button>
+        <button className="background-btn" onClick={toggleBackground}>Change Background</button> {/* New button to change background */}
+        <div className="light-settings">
+          <label>
+            Light Type:
+            <select value={lightType} onChange={(e) => setLightType(e.target.value)}>
+              <option value="point">Point Light</option>
+              <option value="spot">Spot Light</option>
+              <option value="directional">Directional Light</option>
+            </select>
+          </label>
+          <label>
+            Light Color:
+            <input type="color" value={lightColor} onChange={(e) => setLightColor(e.target.value)} />
+          </label>
+          <label>
+            Light Intensity:
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="0.1"
+              value={lightIntensity}
+              onChange={(e) => setLightIntensity(e.target.value)}
+            />
+          </label>
+          <label>
+            Shadows Enabled:
+            <input
+              type="checkbox"
+              checked={shadowsEnabled}
+              onChange={(e) => setShadowsEnabled(e.target.checked)}
+            />
+          </label>
+          <label>
+            Shadow Intensity:
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={shadowIntensity}
+              onChange={(e) => setShadowIntensity(e.target.value)}
+            />
+          </label>
+          <label>
+            Exposure Enabled:
+            <input
+              type="checkbox"
+              checked={exposureEnabled}
+              onChange={(e) => setExposureEnabled(e.target.checked)}
+            />
+          </label>
+          <label>
+            Exposure Intensity:
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={exposureIntensity}
+              onChange={(e) => setExposureIntensity(e.target.value)}
+            />
+          </label>
+        </div>
+        <button className="save-btn" onClick={saveSettings}>Save Settings</button>
       </div>
     </div>
   );
 };
 
 export default App;
+
+
+//-------------------------------------
+
