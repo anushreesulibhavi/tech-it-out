@@ -1,4 +1,4 @@
-html, body {
+html, body, #root {
   height: 100%;
   margin: 0;
   overflow: hidden;
@@ -17,80 +17,322 @@ html, body {
 }
 
 .canvas-container {
+  width: 100%;
+  height: 100vh;
   flex-grow: 1;
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  background-color: #021b25; 
+  justify-content: center;
+  align-items: center;
+  position:relative;
+  background-color: #021b25;
 }
 
 .ui {
   position: absolute;
-  top: 10px;
-  left: 20%;
-  transform: translateX(-50%);
+  top: 20px;
+  left: 1600px;
   z-index: 1;
   padding: 10px;
   border-radius: 8px;
-  width:auto;
+  width: 183%;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  background: #bcb9b9;
+  backdrop-filter: blur(10px) grayscale(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.ui:hover {
+  transform: translate(-6%, -6%) scale(1.1) rotateX(3deg);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+}
+
+.ui label,
+.ui input[type="color"],
+.ui input[type="range"],
+.ui button {
+  transform: perspective(500px) translateZ(0);
 }
 
 .file-input-wrapper {
   position: relative;
   display: block;
-  margin-bottom: 10px; /* Add space between elements */
+  margin-bottom: 10px;
 }
 
 .file-input {
-  display: none; 
+  display: none;
 }
 
-.file-input-label, .upload-btn, .background-btn {
+.file-input-label,
+.upload-btn,
+.background-btn,
+.button {
   padding: 10px 20px;
   font-size: 14px;
-  background-color: #FFD700; /* Gold color */
+  background-color: #868682;
   color: black;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  box-shadow: 0 5px #999; /* Shadow to create a 3D effect */
-  display: inline-block;
-  margin-bottom: 10px; /* Add space between elements */
-  transition: all 0.2s ease; /* Smooth transition for hover effects */
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.15);
+  display: block; 
+  margin-bottom: 10px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.file-input-label:active, .upload-btn:active, .background-btn:active {
-  box-shadow: 0 2px #666; /* Smaller shadow on click */
-  transform: translateY(4px); /* Move button down on click */
+.button4 {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #868682;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.15);
+  display: block; 
+  margin-bottom: 10px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.file-input-label:hover, .upload-btn:hover, .background-btn:hover {
-  background-color: #FFC700; /* Slightly lighter gold on hover */
+button:active {
+  transform: translateZ(50px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Add this to your App.css file */
+.file-input-label:active,
+.upload-btn:active,
+.background-btn:active,
+.button:active {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2);
+  transform: perspective(500px) translateZ(-2px);
+}
+
+.file-input-label:hover,
+.upload-btn:hover,
+.background-btn:hover,
+.button:hover {
+  background-color: #50385f;
+  transform: translate(6%, 6%) scale(1.1) rotateY(3deg);
+}
+
+@keyframes hoverMove {
+  0% {
+    transform: perspective(500px) translateZ(5px) translateY(0);
+  }
+  100% {
+    transform: perspective(500px) translateZ(5px) translateY(-3px);
+  }
+}
+
+#panel {
+  top: 22%;
+  right: 20000px;
+  width: 150px;
+  height: 83%;
+  background: #bcb9b9;
+  transform: translateX(90%);
+  transition: transform 0.3s ease-in-out;
+  z-index:800;
+} 
+
+#panel2 {
+  position: fixed;
+  top: 22%;
+  right: 0;
+  width: 250px;
+  height: 83%;
+  background: #bcb9b9;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  transform: translateX(90%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 900;
+}
+
+#panel.show {
+  transform: translateX(0);
+}
+
+#panel2.show {
+  transform: translateX(0);
+}
+
+#panel.hidden {
+  transform: translateX(215%);
+} 
+
+#panel2.hidden {
+  transform: translateX(190%);
+}
+
+#toggle-button {
+  position: fixed;
+  top: 150px;
+  left: 6px;
+  z-index: 1001;
+  margin-bottom: 20px;
+}
+
+#toggle-button2 {
+  position: fixed;
+  top: 187px;
+  left: 6px;
+  z-index: 1001;
+  margin-bottom: 300px;
+  font-size: 16px;
+}
+
+#close-button {
+  margin: 10px;
+}
 
 .light-settings {
-  display: flex;
-  flex-direction: column; /* Make each child element take a new line */
-  gap: 10px; /* Optional: add some space between each line */
+  display:flex;
+  top:0%;
+  left:200px;
+  flex-direction: column;
+  gap:10px;
+  padding: 5px;
+  border-radius: 6px;
+  width: 105%;
+  height: 78%;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px) grayscale(100%);
+  transition: transform 0.3s ease-in-out;
+  background: #bcb9b9;
+}
+
+.light-settings h2 {
+  color: #333; 
 }
 
 .light-settings label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+  color: #333;
 }
 
 .light-settings input[type="range"] {
-  flex: 1;
-  margin-left: 10px; /* Optional: add some space between the label and the slider */
+  margin-top: 5px;
 }
 
-.light-settings input[type="color"],
-.light-settings select,
-.light-settings input[type="checkbox"] {
-  margin-left: 10px; /* Optional: add some space between the label and the input */
+.help-panel {
+  position: fixed;
+  top: 20%;
+  left: 28%;
+  background: rgba(0, 0, 0, 0.244);
+  color: rgb(228, 222, 222);
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 1000;
+  max-width: 700px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.help-panel h2 {
+  margin-top: 0;
+}
+
+.help-panel p {
+  margin: 10px 0;
+}
+
+.help-button {
+  position: fixed;
+  bottom: 10px;
+  left: 6px;
+  background: #211c3d;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.help-button:hover {
+  background: #b095e6;
+  transform: translate(6%, 6%) scale(1.1) rotateY(3deg);
+}
+
+#view-only-button {
+  position: fixed;
+  top: 60px;
+  left: 4px;
+  background: #211c3d;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 120px;
+  cursor: pointer;
+  z-index: 1002;
+  width: 100px;
+  text-align: center;
+}
+
+#view-only-button:hover {
+  background: #b095e6;
+  transform: translate(6%, 6%) scale(1.1) rotateY(3deg);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .ui {
+    left: 10px;
+    width: auto;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  #panel, #panel2 {
+    width: 100%;
+    height: 50%;
+    transform: translateX(100%);
+  }
+
+  #toggle-button, #toggle-button2, #view-only-button {
+    position: fixed;
+    left: 10px;
+  }
+
+  #toggle-button {
+    top: 10px;
+  }
+
+  #toggle-button2 {
+    top: 60px;
+    margin-bottom: 10px;
+  }
+
+  #view-only-button {
+    top: 110px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ui {
+    left: 5px;
+    width: auto;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  #panel, #panel2 {
+    width: 100%;
+    height: 40%;
+    transform: translateX(100%);
+  }
+
+  #toggle-button, #toggle-button2, #view-only-button {
+    left: 5px;
+  }
+
+  #toggle-button {
+    top: 5px;
+  }
+
+  #toggle-button2 {
+    top: 40px;
+    margin-bottom: 5px;
+  }
+
+  #view-only-button {
+    top: 85px;
+  }
 }
