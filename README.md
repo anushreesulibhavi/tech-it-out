@@ -2,6 +2,11 @@
 
 Welcome to the 3D Model Viewer and Editor! This application is designed to provide a seamless interface for uploading, viewing, and interacting with 3D models. Whether you're an artist, developer, or hobbyist, our app offers a robust set of tools to manipulate lights, cameras, upload models to firebase and other visual elements in a 3D scene.
 
+This project is developed with contributions from Fabrik.Space [https://www.fabrik.space/], that provides Spatial Computing Infrastructure for Critical Operations. A Fully Integrated Suite of Spatial Products for Industries
+Enhance operations efficiency, ensure data-driven decisions, and drive innovation with our fully integrated platform. You can use Fabrik to cover all your spatial computing-needs, from facility monitoring with digital twins to enhancing workforce skills with immersive trainings.
+
+Collaborator: Done alongside @shravyahr2003
+
 ### REACT APPLICATION
 
 ## JSX COMPONENTS OVERVIEW
