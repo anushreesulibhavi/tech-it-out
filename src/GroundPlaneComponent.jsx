@@ -11,6 +11,7 @@ const GroundPlaneComponent = () => {
       <shadowMaterial opacity={0.5} />
     </mesh>
   );
+
 };
 
 export default GroundPlaneComponent;
