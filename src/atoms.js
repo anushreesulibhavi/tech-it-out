@@ -1,3 +1,4 @@
+
 import { atom } from "jotai";
 
 export const backgroundColor = atom('#3b3b3b');
